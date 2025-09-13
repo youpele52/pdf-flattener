@@ -16,12 +16,15 @@ var gsCommand = []string{
 }
 
 // flattenPDF runs Ghostscript to flatten a single PDF.
-func flattenPDF(inputPDF string) error {
+func flattenPDF(inputPDF string, replace bool) error {
 	dir := filepath.Dir(inputPDF)
 	base := filepath.Base(inputPDF)
 	ext := filepath.Ext(base)
 	name := strings.TrimSuffix(base, ext)
 	outputPDF := filepath.Join(dir, name+"_flattened.pdf")
+	if replace {
+		outputPDF = inputPDF
+	}
 	args := append(gsCommand[1:], "-o", outputPDF, inputPDF)
 	cmd := exec.Command(gsCommand[0], args...)
 	cmd.Stdout = os.Stdout
@@ -46,13 +49,13 @@ func flattenPDF(inputPDF string) error {
 }
 
 // flattenFolder walks the folder recursively and flattens each PDF.
-func flattenFolder(root string) error {
+func flattenFolder(root string, replace bool) error {
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.IsDir() && strings.ToLower(filepath.Ext(info.Name())) == ".pdf" {
-			return flattenPDF(path)
+			return flattenPDF(path, replace)
 		}
 		return nil
 	})

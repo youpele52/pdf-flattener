@@ -55,9 +55,14 @@ go build
 
 ### Running with Go
 
-To flatten a single PDF file:
+To flatten a single PDF file (creates a new file with "_flattened" suffix):
 ```bash
 go run . /path/to/your/file.pdf
+```
+
+To flatten and replace the original PDF file:
+```bash
+go run . /path/to/your/file.pdf -replace
 ```
 
 To process all PDFs in a directory (including subdirectories):
@@ -65,18 +70,33 @@ To process all PDFs in a directory (including subdirectories):
 go run . /path/to/your/folder
 ```
 
+To process all PDFs in a directory and replace the original files:
+```bash
+go run . /path/to/your/folder -replace
+```
+
 ### Running the compiled binary
 
 If you've built the application:
 
-To flatten a single PDF file:
+To flatten a single PDF file (creates a new file with "_flattened" suffix):
 ```bash
 ./pdf-flattener /path/to/your/file.pdf
+```
+
+To flatten and replace the original PDF file:
+```bash
+./pdf-flattener /path/to/your/file.pdf -replace
 ```
 
 To process all PDFs in a directory (including subdirectories):
 ```bash
 ./pdf-flattener /path/to/your/folder
+```
+
+To process all PDFs in a directory and replace the original files:
+```bash
+./pdf-flattener /path/to/your/folder -replace
 ```
 
 ## Output
