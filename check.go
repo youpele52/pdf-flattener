@@ -29,3 +29,9 @@ func checkGhostscriptInstalled() error {
 
 	return nil
 }
+
+// checkCommandExists checks if a command is available in the system PATH
+func checkCommandExists(command string) bool {
+	_, err := exec.LookPath(command)
+	return err == nil
+}
