@@ -13,6 +13,12 @@ var gsCommand = []string{
 	"-dPDFSETTINGS=/prepress",
 	"-dNOPAUSE",
 	"-dBATCH",
+	"-dFILTERIMAGE",
+	"-dFILTERTEXT",
+	"-dFILTERVECTOR",
+	"-dCompatibilityLevel=1.4",
+	"-dPrinted=false",
+	"-dAutoRotatePages=/None",
 }
 
 // flattenPDF runs Ghostscript to flatten a single PDF.
