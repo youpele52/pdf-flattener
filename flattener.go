@@ -21,11 +21,21 @@ func flattenPDF(inputPDF string, replace bool) error {
 	base := filepath.Base(inputPDF)
 	ext := filepath.Ext(base)
 	name := strings.TrimSuffix(base, ext)
-	outputPDF := filepath.Join(dir, name+"_flattened.pdf")
+	
+	// Determine the output path
+	var outputPDF string
+	var tempOutput string
+	
 	if replace {
-		outputPDF = inputPDF
+		// Create a temporary file path for processing
+		tempOutput = filepath.Join(dir, name+"_temp_"+ext)
+		outputPDF = inputPDF // For display purposes
+	} else {
+		outputPDF = filepath.Join(dir, name+"_flattened.pdf")
+		tempOutput = outputPDF // No temp needed when not replacing
 	}
-	args := append(gsCommand[1:], "-o", outputPDF, inputPDF)
+	// Use the temporary output path for Ghostscript
+	args := append(gsCommand[1:], "-o", tempOutput, inputPDF)
 	cmd := exec.Command(gsCommand[0], args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -33,15 +43,34 @@ func flattenPDF(inputPDF string, replace bool) error {
 
 	err := cmd.Run()
 	if err != nil {
+		// Clean up temp file if it exists
+		os.Remove(tempOutput)
 		return fmt.Errorf("\n❌ failed to flatten PDF: %w", err)
 	}
 
 	// Check if the output file was created and has content
-	if info, err := os.Stat(outputPDF); err != nil || info.Size() == 0 {
+	if info, err := os.Stat(tempOutput); err != nil || info.Size() == 0 {
+		// Clean up temp file if it exists
+		os.Remove(tempOutput)
 		if err != nil {
 			return fmt.Errorf("\n❌ flattened PDF not created: %w", err)
 		}
 		return fmt.Errorf("\n⚠️ flattened PDF was created but is empty")
+	}
+	
+	// If we're replacing the original file, do the replacement now
+	if replace {
+		// Remove the original file
+		if err := os.Remove(inputPDF); err != nil {
+			// Clean up temp file
+			os.Remove(tempOutput)
+			return fmt.Errorf("\n❌ could not remove original file for replacement: %w", err)
+		}
+		
+		// Rename the temp file to the original file name
+		if err := os.Rename(tempOutput, inputPDF); err != nil {
+			return fmt.Errorf("\n❌ could not rename temp file to original: %w", err)
+		}
 	}
 
 	fmt.Printf("\n✅ Successfully flattened: %s\n", outputPDF)
